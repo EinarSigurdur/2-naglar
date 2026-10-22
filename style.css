@@ -157,3 +157,5 @@ html:not(.intro-playing) .intro-artwork,html:not(.intro-playing) .intro-backdrop
 .contact-email-button:hover{background:#ed7900;color:var(--ink)}
 .contact-email-note{font-size:12px;color:#466375;margin-top:14px}
 @media(max-width:760px){.contact-message{margin-top:40px;padding-top:30px;border-top:1px solid #a9c2ce}.contact-message>.email{font-size:clamp(18px,5.2vw,26px)}}
+/* Leave enough runway for native contact anchors, even on a tall desktop. */
+.contact-layout{min-height:calc(100svh - 130px)}

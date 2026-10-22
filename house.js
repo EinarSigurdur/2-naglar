@@ -149,7 +149,7 @@ function mount(T) {
  let frame=0, measureFrame=0, current=0, target=0, visible=true, disposed=false, lastTime=0;
  function onScroll(){if(!measureFrame && visible)measureFrame=requestAnimationFrame(()=>{measureFrame=0;measure();});}
  const clamp=(n)=>Math.max(0,Math.min(1,n));
- function measure(){const first=panels[0].getBoundingClientRect(),last=panels[2].getBoundingClientRect();const focus=innerHeight*(compact.matches?.64:.5);target=clamp((focus-first.top)/Math.max(1,last.bottom-first.top));schedule();}
+ function measure(){const first=panels[0].getBoundingClientRect(),last=panels[2].getBoundingClientRect();const focus=compact.matches?first.height*.5:innerHeight*.5;target=clamp((focus-first.top)/Math.max(1,last.bottom-first.top));schedule();}
  function render(time){frame=0;if(disposed||!visible)return;current=damp(current,target,lastTime?(time-lastTime)/1000:1/60);lastTime=time;if(Math.abs(current-target)<.0001)current=target;
   const pose=housePose(current), amounts=pose.parts;
   house.rotation.y=pose.rotation;
