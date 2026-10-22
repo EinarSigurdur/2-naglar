@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://einarsigurdur.github.io/2-naglar/sitemap.xml
+Sitemap: https://2naglar.is/sitemap.xml
