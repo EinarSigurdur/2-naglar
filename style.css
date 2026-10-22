@@ -139,10 +139,6 @@ html:not(.intro-playing) .intro-artwork,html:not(.intro-playing) .intro-backdrop
 /* UX finish: direct contact anchors, compact mobile story and quiet feedback. */
 #samband{scroll-margin-top:32px}#samband:focus,#efni:focus{outline:none}
 .founder-reveal{will-change:auto}
-.form-status:not(:empty){min-height:3.6em}.form-status[data-state="error"]{color:#82391e}
-.form-bottom .button:disabled{opacity:.65;cursor:wait;transform:none}
-.form-error{display:block;color:#82391e;font-size:12px;line-height:1.5;margin-top:8px}
-input[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:#82391e}
 @media(max-width:760px){
  .house-ready .house-stage{height:42svh}
  .house-ready .house-steps{margin-top:-42svh}

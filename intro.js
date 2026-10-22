@@ -37,7 +37,7 @@
   const y = (innerHeight - size) / 2 - box.top;
   const diagonal = 'M493 1199 Q476 1178 528 1137 L1147 869 Q1164 860 1153 844 L1142 821 Q1159 800 1187 805 L1253 958 Q1247 979 1219 978 L1194 934 Q1187 922 1170 931 L573 1188 Q526 1208 493 1199Z';
   const horizontal = 'M433 1083 Q451 1061 494 1060 L1147 1060 Q1167 1060 1167 1034 L1168 1013 Q1191 998 1219 1007 L1225 1164 Q1215 1186 1180 1180 L1168 1167 L1168 1138 Q1167 1122 1147 1123 L491 1123 Q449 1118 433 1102Z';
-  const source = '<image href="assets/logo-transparent.png" width="1254" height="1254"/>';
+  const source = '<image href="assets/logo-transparent.webp" width="1254" height="1254"/>';
   artwork = document.createElementNS('http://www.w3.org/2000/svg','svg');
   artwork.setAttribute('viewBox','0 0 1254 1254');
   artwork.setAttribute('aria-hidden','true');
