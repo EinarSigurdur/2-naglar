@@ -78,7 +78,7 @@
   hero.append(backdrop); brand.append(artwork);
   root.classList.add('intro-playing');
   const ease='cubic-bezier(.22,.72,.18,1)';
-  const tempo = 3000 / 1890;
+  const tempo = 1950 / 1890;
   const animate = (el, frames, options) => { const a=el.animate(frames,{fill:'both',easing:ease,...options,duration:options.duration*tempo,delay:(options.delay||0)*tempo}); animations.push(a); return a; };
   animate(artwork.querySelector('.intro-number'),[{clipPath:'inset(100% 0 0 0)',opacity:0},{clipPath:'inset(0% 0 0 0)',opacity:1}],{duration:440});
   animate(artwork.querySelector('.intro-word'),[{opacity:0,transform:'translateY(18px)',clipPath:'inset(100% 0 0 0)'},{opacity:1,transform:'translateY(0)',clipPath:'inset(0% 0 0 0)'}],{delay:220,duration:390});

@@ -56,37 +56,16 @@ if ('IntersectionObserver' in window) {
  window.addEventListener('resize', schedulePhotos);
  reducedMotion.addEventListener('change', schedulePhotos);
 }
-// Public static hosting: compose locally; no submission or delivery is claimed.
-const form = document.querySelector('form[name="fyrirspurn"]');
-form?.addEventListener('submit', event => {
- event.preventDefault();
- const data = new FormData(form);
- const href = 'mailto:2naglarehf@gmail.com?subject=' + encodeURIComponent('Fyrirspurn frá ' + data.get('name')) + '&body=' + encodeURIComponent(`${data.get('message')}\n\n${data.get('name')}\n${data.get('email')}\n${data.get('phone')}`);
- const status = form.querySelector('.form-status');
- status.textContent = 'Sendu fyrirspurnina úr tölvupóstforritinu þínu. Ef það opnast ekki: ';
- const link = document.createElement('a'); link.href = href; link.textContent = 'Opna tölvupóst'; status.append(link);
- location.href = href;
-});
-// Keep browser validation messages in the same language as the page.
-form?.querySelectorAll('input:not([type=hidden]), textarea').forEach(field => {
- field.addEventListener('input', () => field.setCustomValidity(''));
- field.addEventListener('invalid', () => {
-  if (field.validity.valueMissing) field.setCustomValidity('Vinsamlegast fylltu út þennan reit.');
-  else if (field.validity.typeMismatch) field.setCustomValidity('Vinsamlegast sláðu inn gilt netfang.');
-  else if (field.validity.tooShort) field.setCustomValidity('Lýstu verkefninu í að minnsta kosti 10 stöfum.');
- });
-});
-
 // Footer entrance: progressive enhancement, once, without affecting layout.
 (() => {
- const footer = document.querySelector('#samband');
+ const footer = document.querySelector('#footer');
  if (!footer || reducedMotion.matches || !('IntersectionObserver' in window) || !Element.prototype.animate) return;
  const animations = [];
  const observer = new IntersectionObserver(entries => {
   if (!entries.some(entry => entry.isIntersecting)) return;
   observer.disconnect();
   if (reducedMotion.matches || footer.contains(document.activeElement)) return;
-  [footer.querySelector('#contact-title'), footer.querySelector('form')].forEach((element, index) => {
+  [footer.querySelector('#contact-title'), footer.querySelector('.contact-message')].forEach((element, index) => {
    animations.push(element.animate([
     { opacity: 0, transform: 'translateY(12px)' },
     { opacity: 1, transform: 'translateY(0)' }
@@ -100,19 +79,3 @@ form?.querySelectorAll('input:not([type=hidden]), textarea').forEach(field => {
  window.addEventListener('pagehide', finish, { once: true });
 })();
 
-// A usable alternative when no email application is configured.
-const copyInquiry = form?.querySelector('.copy-inquiry');
-if (copyInquiry && navigator.clipboard?.writeText) {
- copyInquiry.hidden = false;
- copyInquiry.addEventListener('click', async () => {
-  if (!form.reportValidity()) return;
-  const data = new FormData(form);
-  const text = `Til: 2naglarehf@gmail.com\nEfni: Fyrirspurn frá ${data.get('name')}\n\n${data.get('message')}\n\n${data.get('name')}\n${data.get('email')}\n${data.get('phone')}`;
-  try {
-   await navigator.clipboard.writeText(text);
-   form.querySelector('.form-status').textContent = 'Fyrirspurnin hefur verið afrituð. Límdu hana í tölvupóst og sendu á 2naglarehf@gmail.com.';
-  } catch {
-   form.querySelector('.form-status').textContent = 'Ekki tókst að afrita. Þú getur valið textann í reitunum og afritað hann handvirkt.';
-  }
- });
-}

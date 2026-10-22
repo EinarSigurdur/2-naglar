@@ -18,7 +18,7 @@ async function start() {
 function mount(T) {
  const host = section.querySelector('.house-canvas');
  const renderer = new T.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'low-power' });
- renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+ renderer.setPixelRatio(Math.min(devicePixelRatio, compact.matches ? 1.25 : 1.5));
  renderer.outputColorSpace = T.SRGBColorSpace;
  renderer.toneMapping = T.ACESFilmicToneMapping;
  renderer.toneMappingExposure = 1.25;
@@ -30,7 +30,7 @@ function mount(T) {
  camera.position.set(8, 6, 9); camera.lookAt(0, 1.8, 0);
  scene.add(new T.HemisphereLight(0xd5e5ee, 0x626460, 1.8));
  const key = new T.DirectionalLight(0xfff2da, 3); key.position.set(-3, 9, 6); key.castShadow = true;
- key.shadow.mapSize.set(1024, 1024); Object.assign(key.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8 }); key.shadow.bias = -.001;
+ const shadowSize=compact.matches?512:1024; key.shadow.mapSize.set(shadowSize, shadowSize); Object.assign(key.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8 }); key.shadow.bias = -.001;
  scene.add(key); const rim = new T.DirectionalLight(0xd4e2eb, .85); rim.position.set(5, 4, -5); scene.add(rim);
  const house = new T.Group(); scene.add(house);
  const material = (color, metalness = 0, roughness = .65) => new T.MeshStandardMaterial({ color, metalness, roughness });
@@ -146,9 +146,10 @@ function mount(T) {
  outline(roof,accents[0]);windows.forEach(w=>outline(w,accents[1]));cladding.forEach(w=>outline(w,accents[2]));
  const ground=new T.Mesh(new T.PlaneGeometry(200,200),new T.ShadowMaterial({opacity:.24}));ground.rotation.x=-Math.PI/2;ground.position.y=-.24;ground.receiveShadow=true;scene.add(ground);
  const panels=[...section.querySelectorAll('.house-step')];
- let frame=0, current=0, target=0, visible=true, disposed=false, lastTime=0;
+ let frame=0, measureFrame=0, current=0, target=0, visible=true, disposed=false, lastTime=0;
+ function onScroll(){if(!measureFrame && visible)measureFrame=requestAnimationFrame(()=>{measureFrame=0;measure();});}
  const clamp=(n)=>Math.max(0,Math.min(1,n));
- function measure(){const first=panels[0].getBoundingClientRect(),last=panels[2].getBoundingClientRect();const focus=innerHeight*(compact.matches?.76:.5);target=clamp((focus-first.top)/Math.max(1,last.bottom-first.top));schedule();}
+ function measure(){const first=panels[0].getBoundingClientRect(),last=panels[2].getBoundingClientRect();const focus=innerHeight*(compact.matches?.64:.5);target=clamp((focus-first.top)/Math.max(1,last.bottom-first.top));schedule();}
  function render(time){frame=0;if(disposed||!visible)return;current=damp(current,target,lastTime?(time-lastTime)/1000:1/60);lastTime=time;if(Math.abs(current-target)<.0001)current=target;
   const pose=housePose(current), amounts=pose.parts;
   house.rotation.y=pose.rotation;
@@ -165,12 +166,12 @@ function mount(T) {
  function resize(){const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h);camera.aspect=w/h;camera.position.set(8,6,9).multiplyScalar(camera.aspect<.95?.95/Math.max(.4,camera.aspect):1);camera.lookAt(0,1.8,0);camera.updateProjectionMatrix();measure();}
  const observer=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(visible){measure();schedule();}else if(frame){cancelAnimationFrame(frame);frame=0;}},{rootMargin:'200px'});
  const ro=new ResizeObserver(resize);
- function destroy(){if(disposed)return;disposed=true;cancelAnimationFrame(frame);observer.disconnect();ro.disconnect();window.removeEventListener('scroll',measure);window.removeEventListener('resize',resize);scene.traverse(o=>{o.geometry?.dispose();if(o.material)for(const m of [o.material].flat())m.dispose();});environment.dispose();textures.forEach(texture=>texture.dispose());renderer.dispose();renderer.domElement.remove();section.classList.remove('house-ready');}
+ function destroy(){if(disposed)return;disposed=true;cancelAnimationFrame(frame);observer.disconnect();ro.disconnect();cancelAnimationFrame(measureFrame);window.removeEventListener('scroll',onScroll);window.removeEventListener('resize',resize);scene.traverse(o=>{o.geometry?.dispose();if(o.material)for(const m of [o.material].flat())m.dispose();});environment.dispose();textures.forEach(texture=>texture.dispose());renderer.dispose();renderer.domElement.remove();section.classList.remove('house-ready');}
  renderer.domElement.addEventListener('webglcontextlost',event=>{event.preventDefault();destroy();});
  host.append(renderer.domElement);
  // Reveal only after a successfully rendered frame; otherwise keep the original service UI.
  resize();renderer.render(scene,camera);section.classList.add('house-ready');resize();
- observer.observe(section);ro.observe(host);window.addEventListener('scroll',measure,{passive:true});window.addEventListener('resize',resize);
+ observer.observe(section);ro.observe(host);window.addEventListener('scroll',onScroll,{passive:true});window.addEventListener('resize',resize);
  return destroy;
 }
 if(section){
