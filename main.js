@@ -30,10 +30,6 @@ services.forEach(service => {
   selectImage(service.dataset.image);
  });
 });
-const more = document.querySelector('.more-projects');
-more?.addEventListener('toggle', () => {
- more.querySelector('.more-label').textContent = more.open ? 'Færri verkefni' : 'Fleiri verkefni';
-});
 // Only update visible photographs; native scrolling and anchor navigation stay intact.
 const scenes = [...document.querySelectorAll('.hero-photo, .material-banner')];
 const visible = new Set(); let frame = 0;
@@ -79,3 +75,25 @@ if ('IntersectionObserver' in window) {
  window.addEventListener('pagehide', finish, { once: true });
 })();
 
+
+// Quiet photographic reveal, once per image; content stays visible without JS.
+(() => {
+ const section = document.querySelector('.portfolio');
+ if (!section || reducedMotion.matches || !('IntersectionObserver' in window) || !Element.prototype.animate) return;
+ const animations = [];
+ const observer = new IntersectionObserver(entries => {
+  entries.filter(entry => entry.isIntersecting).forEach(entry => {
+   observer.unobserve(entry.target);
+   if (reducedMotion.matches) return;
+   const delay = entry.target.closest('.portfolio-roof') ? 140 : 0;
+   animations.push(entry.target.animate([
+    {clipPath:'inset(8% 0 0 0)',opacity:.35,transform:'translateY(14px)'},
+    {clipPath:'inset(0% 0 0 0)',opacity:1,transform:'translateY(0)'}
+   ],{duration:850,delay,easing:'cubic-bezier(.22,1,.36,1)',fill:'backwards'}));
+  });
+ },{threshold:.12});
+ section.querySelectorAll('.portfolio-frame').forEach(frame => observer.observe(frame));
+ const finish = () => {observer.disconnect();animations.forEach(animation=>animation.cancel());};
+ reducedMotion.addEventListener('change',()=>{if(reducedMotion.matches) finish();});
+ window.addEventListener('pagehide',finish,{once:true});
+})();
