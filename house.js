@@ -6,16 +6,23 @@ const compact = matchMedia('(max-width: 760px)');
 const shortScreen = matchMedia('(max-height: 540px)');
 let teardown = () => {};
 let loading = false;
+let generation=0, active=true, requested=false;
+const yieldWork=()=>new Promise(resolve=>setTimeout(resolve,0));
 async function start() {
- if (loading || motion.matches || shortScreen.matches || !('IntersectionObserver' in window) || !('ResizeObserver' in window) || !section || section.classList.contains('house-ready')) return;
+ if (!active || loading || motion.matches || shortScreen.matches || !('IntersectionObserver' in window) || !('ResizeObserver' in window) || !section || section.classList.contains('house-ready')) return;
  loading = true;
+ const ticket=generation;
  try {
   const T = await import('./assets/vendor/three.module.min.js');
-  if (!motion.matches && !shortScreen.matches) teardown = mount(T);
+  if (active && !motion.matches && !shortScreen.matches) {
+   const dispose=await mount(T);
+   if(ticket!==generation || !active || motion.matches || shortScreen.matches) dispose();
+   else teardown=dispose;
+  }
  } catch (error) { console.warn('3D illustration unavailable; service photographs remain visible.', error); }
- finally { loading = false; }
+ finally { loading = false; if(ticket!==generation && active && requested && !motion.matches && !shortScreen.matches) start(); }
 }
-function mount(T) {
+async function mount(T) {
  const host = section.querySelector('.house-canvas');
  const renderer = new T.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'low-power' });
  renderer.setPixelRatio(Math.min(devicePixelRatio, compact.matches ? 1.25 : 1.5));
@@ -48,17 +55,20 @@ function mount(T) {
   }
   ctx.putImageData(image,0,0);const texture=new T.CanvasTexture(canvas);texture.wrapS=texture.wrapT=T.RepeatWrapping;texture.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());textures.push(texture);return texture;
  }
+ await yieldWork();
  const woodTexture=surface('wood'), metalTexture=surface('metal');
  wood.map=woodTexture;wood.bumpMap=woodTexture;wood.bumpScale=.012;wood.color.set(0xc5b49a);wood.roughness=.8;
  slate.roughnessMap=metalTexture;slate.roughness=.48;slate.metalness=.65;
  plaster.roughness=1;concrete.roughness=1;concrete.bumpMap=metalTexture;concrete.bumpScale=.018;
  glass.color.set(0x43616c);glass.metalness=.35;glass.roughness=.12;
+ await yieldWork();
  const skyCanvas=document.createElement('canvas');skyCanvas.width=512;skyCanvas.height=256;
  const skyContext=skyCanvas.getContext('2d'),skyGradient=skyContext.createLinearGradient(0,0,0,256);
  skyGradient.addColorStop(0,'#9bbbcf');skyGradient.addColorStop(.48,'#e7e8dd');skyGradient.addColorStop(.53,'#71818a');skyGradient.addColorStop(1,'#29363a');skyContext.fillStyle=skyGradient;skyContext.fillRect(0,0,512,256);
  skyContext.fillStyle='#fff5df';skyContext.fillRect(70,35,65,90);
  const sky=new T.CanvasTexture(skyCanvas);sky.mapping=T.EquirectangularReflectionMapping;sky.colorSpace=T.SRGBColorSpace;
  const pmrem=new T.PMREMGenerator(renderer),environment=pmrem.fromEquirectangular(sky);scene.environment=environment.texture;scene.environmentIntensity=.65;pmrem.dispose();sky.dispose();
+ await yieldWork();
  const orange = new T.Color(0xff8500), roofMat = slate.clone(), windowMat = trim.clone(), cladMat = wood.clone();
  const originals = [roofMat.color.clone(), windowMat.color.clone(), cladMat.color.clone()];
  const box = (parent, w, h, d, x, y, z, mat) => { const mesh = new T.Mesh(new T.BoxGeometry(w, h, d), mat); mesh.position.set(x, y, z); mesh.castShadow = true; mesh.receiveShadow = true; parent.add(mesh); return mesh; };
@@ -120,9 +130,13 @@ function mount(T) {
    if(o.door){box(frame,o.w-.13,o.h*.65,.055,0,-o.h*.14,.035,trim);box(frame,.03,.2,.04,o.w*.3,0,.1,material(0xb7bfc1,.8,.2));}
   }
  }
+ await yieldWork();
  wall(5.4,0,1.7,0,[{x:-1.6,y:1.4,w:1.1,h:1.25},{x:0,y:1.4,w:1.1,h:1.25},{x:1.9,y:1.05,w:.8,h:2.1,door:true}]);
+ await yieldWork();
  wall(5.4,0,-1.7,Math.PI,[{x:-1.6,y:1.4,w:1.1,h:1.25},{x:0,y:1.4,w:1.1,h:1.25},{x:1.6,y:1.4,w:1.1,h:1.25}]);
+ await yieldWork();
  wall(3.4,2.7,0,Math.PI/2,[{x:0,y:1.4,w:1.5,h:1.25}],true);
+ await yieldWork();
  wall(3.4,-2.7,0,-Math.PI/2,[{x:0,y:1.4,w:1.5,h:1.25}],true);
  // Batch static pieces by material within each moving part: board detail without hundreds of draw calls.
  function batch(group) {
@@ -137,7 +151,9 @@ function mount(T) {
    const mesh=new T.Mesh(geometry,mat);mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);
   }
  }
+ await yieldWork();
  batch(house);
+ await yieldWork();
  const accents = [0,1,2].map(() => new T.LineBasicMaterial({color:0xffa14a,transparent:true,opacity:0}));
  function outline(group, material){
   const meshes=[];group.traverse(o=>{if(o.isMesh)meshes.push(o)});
@@ -168,6 +184,8 @@ function mount(T) {
  const ro=new ResizeObserver(resize);
  function destroy(){if(disposed)return;disposed=true;cancelAnimationFrame(frame);observer.disconnect();ro.disconnect();cancelAnimationFrame(measureFrame);window.removeEventListener('scroll',onScroll);window.removeEventListener('resize',resize);scene.traverse(o=>{o.geometry?.dispose();if(o.material)for(const m of [o.material].flat())m.dispose();});environment.dispose();textures.forEach(texture=>texture.dispose());renderer.dispose();renderer.domElement.remove();section.classList.remove('house-ready');}
  renderer.domElement.addEventListener('webglcontextlost',event=>{event.preventDefault();destroy();});
+ if(renderer.compileAsync) await renderer.compileAsync(scene,camera);
+ await yieldWork();
  host.append(renderer.domElement);
  // Reveal only after a successfully rendered frame; otherwise keep the original service UI.
  resize();renderer.render(scene,camera);section.classList.add('house-ready');resize();
@@ -175,9 +193,9 @@ function mount(T) {
  return destroy;
 }
 if(section){
- if('IntersectionObserver' in window){const loader=new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting)){start();loader.disconnect();}},{rootMargin:'700px'});loader.observe(section);}else start();
- const adapt=()=>{teardown();if(!motion.matches && !shortScreen.matches)start();};
+ if('IntersectionObserver' in window){const loader=new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting && e.intersectionRatio>0)){requested=true;start();loader.disconnect();}},{rootMargin:'0px',threshold:.01});loader.observe(section);}else start();
+ const adapt=()=>{generation++;teardown();if(requested && !motion.matches && !shortScreen.matches)start();};
  motion.addEventListener('change',adapt);shortScreen.addEventListener('change',adapt);
- window.addEventListener('pagehide',()=>teardown());
- window.addEventListener('pageshow',event=>{if(event.persisted)start();});
+ window.addEventListener('pagehide',()=>{active=false;generation++;teardown();});
+ window.addEventListener('pageshow',event=>{if(event.persisted){active=true;if(requested)start();}});
 }

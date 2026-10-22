@@ -35,7 +35,7 @@
   const scale = size / box.width;
   const x = (innerWidth - size) / 2 - box.left;
   const y = (innerHeight - size) / 2 - box.top;
-  const source = '<image href="assets/logo-transparent.webp" width="1254" height="1254"/>';
+  const source = `<image href="${logo.currentSrc || logo.src}" width="1254" height="1254"/>`;
   artwork = document.createElementNS('http://www.w3.org/2000/svg','svg');
   artwork.setAttribute('viewBox','0 0 1254 1254');
   artwork.setAttribute('aria-hidden','true');
