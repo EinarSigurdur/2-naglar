@@ -9,6 +9,8 @@ export const company = {'@type':'GeneralContractor','@id':`${origin}/#company`,n
 for (const s of services) {
  const url = `${origin}/${s.slug}/`;
  const json = {'@context':'https://schema.org','@graph':[company,{'@type':'Service','@id':url+'#service',name:s.name,serviceType:s.name,url,description:s.description,provider:{'@id':company['@id']}},{'@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Forsíða',item:origin+'/'},{'@type':'ListItem',position:2,name:s.name,item:url}]}]};
+ const specialty = s.specialization?.approved === true
+  ? `<section class="service-editorial" aria-labelledby="specialty"><p class="service-kicker">${esc(s.specialization.label)}</p><div><h2 id="specialty">${esc(s.specialization.title)}</h2>${s.specialization.paragraphs.map(p=>`<p>${esc(p)}</p>`).join('')}</div></section>` : '';
  const html = `<!doctype html>
 <html lang="is"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(s.title)}</title><meta name="description" content="${esc(s.description)}"><link rel="canonical" href="${url}">
@@ -23,6 +25,7 @@ for (const s of services) {
 <section class="service-editorial" aria-labelledby="approach"><p class="service-kicker">VERKEFNIÐ</p><div><h2 id="approach">${s.heading}</h2>${s.paragraphs.map(p=>`<p>${p}</p>`).join('')}<h3>Hvað ræður umfangi og kostnaði?</h3><p>${s.scope}</p></div></section>
 <section class="service-preparation" aria-labelledby="preparation"><div><p class="service-kicker">FYRSTA SKREFIÐ</p><h2 id="preparation">Gott að hafa<br>við höndina.</h2><p>Þú þarft ekki að hafa öll svörin tilbúin. Sendu það sem liggur fyrir og segðu okkur hvenær þú vilt hefjast handa.</p></div><ol>${s.checklist.map(p=>`<li>${p}</li>`).join('')}</ol></section>
 <section class="service-evidence" aria-labelledby="experience"><header><p class="service-kicker">REYNSLA Í VERKI</p><h2 id="experience">Úr verkefnasögunni.</h2><p>Fyrirtækið 2 Naglar var stofnað árið 2006 af Þorvaldi Geir Sigurðssyni og Ivica Gregoric. Átta manna teymi stendur á bak við verkefnin.</p></header><dl>${s.projects.map(([n,p])=>`<div><dt>${esc(n)}</dt><dd>${esc(p)}</dd></div>`).join('')}</dl><a class="text-link" href="/#verkefni">Skoða verkefnasögu 2 Nagla</a></section>
+${specialty}
 <section class="service-questions" aria-labelledby="questions"><h2 id="questions">Algengar spurningar.</h2><div>${s.faq.map(([q,a])=>`<details><summary>${q}<span class="toggle-mark" aria-hidden="true"></span></summary><p>${a}</p></details>`).join('')}</div></section>
 <nav class="related-services" aria-label="Önnur þjónusta"><p class="service-kicker">FLEIRA SEM VIÐ GERUM</p>${services.filter(x=>x.slug!==s.slug).map(x=>`<a href="/${x.slug}/">${x.name}</a>`).join('')}</nav></main>
 <footer class="service-footer" id="samband"><div><p class="service-kicker">TÖLUM SAMAN</p><h2>Hvað má<br>gera fyrir þig?</h2><p>Lýstu verkefninu og staðsetningu þess. Myndir mega gjarnan fylgja.</p><a class="button service-cta" href="mailto:2naglarehf@gmail.com?subject=${encodeURIComponent('Fyrirspurn um '+s.name.toLowerCase())}">Senda tölvupóst</a><p class="service-mail-note">Opnast í tölvupóstforritinu þínu.</p></div><address><a class="service-email" href="mailto:2naglarehf@gmail.com">2naglarehf@gmail.com</a><p>Ivica Gregoric <a href="tel:+3546983340">698 3340</a></p><p>Þorvaldur Geir Sigurðsson <a href="tel:+3548204494">820 4494</a></p><p>Skólagerði 37 · 200 Kópavogur</p></address><div class="service-footer-bottom"><a href="/">2 Naglar ehf.</a><span>Kt. 560206-1780</span><a href="https://www.facebook.com/profile.php?id=100046488012962">Facebook</a></div></footer></body></html>`;
@@ -30,6 +33,7 @@ for (const s of services) {
 }
 let home = await readFile(new URL('index.html',root),'utf8');
 home=home.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/,`<script type="application/ld+json">${JSON.stringify({'@context':'https://schema.org',...company})}</script>`);
+home=home.replace(/service-strip\.js(?:\?v=[a-f0-9]+)?/g,`service-strip.js?v=${await hash('service-strip.js')}`);
 home=home.replace(/style\.css\?v=[a-f0-9]+/g,`style.css?v=${await hash('style.css')}`);
 await writeFile(new URL('index.html',root),home);
 for(const page of ['404.html','takk.html']) {

@@ -196,3 +196,8 @@ html:not(.intro-playing) .intro-artwork,html:not(.intro-playing) .intro-backdrop
  .portfolio-other{margin-top:12px}.footer-bottom{margin-top:36px}
 }
 
+
+/* A quiet, finite editorial close to the service story. */
+.craft-strip{padding:72px var(--gutter) 76px;display:grid;grid-template-columns:1fr 1.2fr;gap:12%;background:#e1edf1;border-top:1px solid #c7d7df;border-bottom:1px solid #c7d7df}
+.craft-eyebrow{font-size:10px;letter-spacing:.13em;font-weight:600;margin-bottom:23px;line-height:1.5}.craft-strip h2{font-size:clamp(32px,3.5vw,52px);line-height:1.13;max-width:15ch}.craft-content ul{padding:0;margin:0;list-style:none}.craft-content li{font-size:clamp(25px,2.6vw,38px);letter-spacing:-.045em;line-height:1.25;padding:15px 0;border-bottom:1px solid #b9ced8}.craft-content li:first-child{padding-top:0}.craft-content>p{margin-top:24px;font-size:14px;line-height:1.8;color:#435e6b;max-width:50ch}
+@media(max-width:760px){.craft-strip{padding:44px var(--gutter) 46px;grid-template-columns:1fr;gap:28px}.craft-eyebrow{margin-bottom:17px}.craft-strip h2{font-size:34px}.craft-content li{font-size:29px;padding:14px 0}.craft-content>p{margin-top:22px;font-size:14px}}

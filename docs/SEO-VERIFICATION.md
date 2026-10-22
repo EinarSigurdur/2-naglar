@@ -37,3 +37,9 @@ See [Icelandic owner handoff](SEO-HANDOFF.md) for Search Console DNS verificatio
 | Gluggaskipti | 99 / 100 / 100 / 100 | 2.1 s | 0 | 0 ms |
 | Þakskipti | 96 / 100 / 100 / 100 | 2.7 s | 0 | 0 ms |
 | Húsaklæðningar | 99 / 100 / 100 / 100 | 2.0 s | 0 | 0 ms |
+
+## Client follow-up: additional services
+
+Added a single editorial strip after the house story. Removed both old general-carpentry notes (3D and fallback); the three service names are real HTML text. Existing hero, project section and footer markup, and all prior interaction scripts, compare identically with the preceding commit. New reveal is isolated in `service-strip.js`: one 500ms opacity/8px entrance, no scroll interception, visible without JS, reduced-motion guard and cancellation.
+
+Desktop 1440px and mobile 390px visually inspected; no overflow or duplicate notes. Build, link/schema checks and JS syntax pass. No full Lighthouse rerun for this isolated addition. BYKO and Danish-system slots remain null and generate no public section or claim. See [required owner evidence](SPECIALIZATIONS.md).

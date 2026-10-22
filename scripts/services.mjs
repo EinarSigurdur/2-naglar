@@ -1,5 +1,7 @@
 export const services = [
 {
+ // BYKO: await written confirmation of current certification and its exact scope.
+ specialization:null,
  slug:'gluggaskipti', name:'Gluggaskipti', title:'Gluggaskipti og gluggaísetning | 2 Naglar',
  description:'Gluggaskipti og gluggaísetning í nýbyggingum hjá 2 Nöglum. Kynntu þér verkefnin, hvað hefur áhrif á umfangið og hvaða upplýsingar gott er að senda.',
  lead:'Nýir gluggar. Vandaður frágangur.', intro:'Við skiptum um glugga í eldri húsum og setjum glugga í nýbyggingar. Fyrsta skrefið er að lýsa húsinu og því sem þarf að gera, svo hægt sé að ræða verkefnið út frá þínum aðstæðum.',
@@ -22,6 +24,8 @@ export const services = [
  faq:[['Er viðhald nóg eða þarf þakskipti?','Það ræðst af ástandi þaksins og umfangi skemmda. Einstök sýnileg einkenni segja ekki alltaf til um heildarástandið. Sendu lýsingu á vandanum og þeim upplýsingum sem þú hefur um þakið.'],['Hvað hefur mest áhrif á kostnað við þakskipti?','Stærð, lögun, aðgengi og efnisval skipta máli, ásamt því hvað kemur í ljós undir eldri klæðningu. Ekki er hægt að gefa áreiðanlegt heildarverð án þess að afmarka verkið.'],['Þarf ég að fara upp á þak til að taka myndir?','Nei. Sendu aðeins myndir sem þú getur tekið örugglega eða átt þegar. Yfirlitsmyndir frá jörðu og lýsing á ástandinu eru góður upphafspunktur fyrir samtalið.']]
 },
 {
+ // Danish cladding system: await product, training, rights and project-photo evidence.
+ specialization:null,
  slug:'husaklaedningar', name:'Húsaklæðningar', title:'Húsaklæðningar og endurnýjun klæðninga | 2 Naglar',
  description:'Húsaklæðningar á nýbyggingum og endurnýjun eldri klæðninga hjá 2 Nöglum. Skoðaðu staðfest verkefni og fáðu gagnleg ráð um undirbúning fyrirspurnar.',
  lead:'Ytra byrði. Vandað frá grunni.', intro:'Við klæðum nýbyggingar og endurnýjum eldri húsaklæðningar. Útlit, ástand og frágangur þurfa að vinna saman, hvort sem endurnýja á einn vegg eða ytra byrði hússins í heild.',
